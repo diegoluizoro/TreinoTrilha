@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programa Preparatório — Huayhuash Circuit</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14; --surface: #141720; --surface2: #1c2030; --border: #252b3b;
+    --accent: #e8a422; --accent2: #3b8cf7; --accent3: #2ec4a0;
+    --danger: #e85b45; --text: #e8eaf0; --text2: #8b91a8; --text3: #5a6070;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:15px; line-height:1.6; overflow-x:hidden; }
+
+  /* HERO */
+  .hero { position:relative; background:linear-gradient(160deg,#0d1520 0%,#0d0f14 60%); border-bottom:1px solid var(--border); padding:70px 40px 60px; overflow:hidden; }
+  .hero::before { content:''; position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+  .hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(232,164,34,.12); border:1px solid rgba(232,164,34,.3); color:var(--accent); font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; padding:6px 14px; border-radius:4px; margin-bottom:24px; }
+  .hero h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(52px,8vw,96px); letter-spacing:3px; line-height:.9; margin-bottom:20px; }
+  .hero h1 span { color:var(--accent); }
+  .hero-sub { font-size:16px; color:var(--text2); max-width:640px; margin-bottom:28px; }
+  .hero-stats { display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+  .stat-chip { display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:10px 16px; font-size:13px; }
+  .stat-chip strong { color:var(--accent); }
+  .video-note { background:rgba(46,196,160,.07); border:1px solid rgba(46,196,160,.25); border-radius:8px; padding:12px 18px; display:inline-flex; align-items:flex-start; gap:12px; font-size:13px; color:var(--text2); max-width:700px; }
+  .video-note strong { color:var(--accent3); }
+
+  /* NAV & HEADER */
+  .sticky-header { position:sticky; top:0; z-index:100; background:rgba(13,15,20,.96); backdrop-filter:blur(12px); border-bottom:1px solid var(--border); }
+  .week-nav { display:flex; overflow-x:auto; scrollbar-width:none; padding:0 40px; }
+  .week-nav::-webkit-scrollbar { display:none; }
+  .week-nav a { display:flex; align-items:center; gap:8px; padding:16px 20px; color:var(--text3); text-decoration:none; font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:1px; border-bottom:2px solid transparent; white-space:nowrap; transition:all .2s; }
+  .week-nav a:hover { color:var(--text); border-bottom-color:var(--accent); }
+  .week-nav a.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .week-nav a .phase { background:var(--surface2); border-radius:3px; padding:2px 6px; font-size:10px; color:var(--text3); }
+
+  /* Progress in Header */
+  .header-progress { padding:0 40px 10px; }
+  .header-prog-container { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:8px 12px; display:flex; align-items:center; gap:15px; }
+  .header-prog-title { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--accent); text-transform:uppercase; white-space:nowrap; }
+  .header-prog-bar-wrap { flex:1; height:6px; background:var(--bg); border-radius:3px; overflow:hidden; }
+  .header-prog-fill { height:100%; background:var(--accent3); width:0%; transition:width .4s ease; }
+  .header-prog-stats { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text3); white-space:nowrap; }
+
+  /* LAYOUT */
+  .container { max-width:1280px; margin:0 auto; padding:0 40px; }
+  .week-block { padding:60px 0 20px; border-bottom:1px solid var(--border); scroll-margin-top: 120px; }
+  .week-header { display:flex; align-items:flex-start; gap:24px; margin-bottom:40px; }
+  .week-num { font-family:'Bebas Neue',sans-serif; font-size:72px; line-height:1; color:var(--border); min-width:80px; }
+  .week-info { flex:1; }
+  .phase-tag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; padding:4px 10px; border-radius:3px; margin-bottom:8px; }
+  .phase-base  { background:rgba(59,140,247,.15); color:var(--accent2); border:1px solid rgba(59,140,247,.3); }
+  .phase-build { background:rgba(232,164,34,.15); color:var(--accent);  border:1px solid rgba(232,164,34,.3); }
+  .phase-peak  { background:rgba(232,91,69,.15);  color:var(--danger);  border:1px solid rgba(232,91,69,.3); }
+  .phase-taper { background:rgba(46,196,160,.15); color:var(--accent3); border:1px solid rgba(46,196,160,.3); }
+  .week-info h2 { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:2px; margin-bottom:6px; }
+  .week-info p  { color:var(--text2); font-size:14px; max-width:700px; }
+  .week-progress { display:flex; gap:4px; margin-bottom:20px; }
+  .progress-dot { height:3px; flex:1; border-radius:2px; background:var(--border); }
+  .progress-dot.filled { background:var(--accent); }
+  .days-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:16px; }
+
+  /* DAY CARD */
+  .day-card { background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; transition:border-color .2s; height: 100%; display: flex; flex-direction: column; }
+  .day-card:hover { border-color:rgba(232,164,34,.25); }
+  .day-card.rest-card { border-style:dashed; opacity:.65; }
+  .day-card.long-card { border-color:rgba(232,91,69,.35); background:linear-gradient(135deg,var(--surface) 0%,rgba(232,91,69,.04) 100%); }
+  .day-card.cardio-outdoor { border-color:rgba(46,196,160,.3); background:linear-gradient(135deg,var(--surface) 0%,rgba(46,196,160,.04) 100%); }
+  .day-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); }
+  .day-label { display:flex; align-items:center; gap:10px; }
+  .day-label .weekday { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--text3); }
+  .day-label .day-name { font-weight:700; font-size:13.5px; }
+  .day-type-badge { font-size:11px; font-family:'JetBrains Mono',monospace; padding:3px 8px; border-radius:3px; white-space:nowrap; }
+  .badge-forca    { background:rgba(59,140,247,.2);  color:var(--accent2); }
+  .badge-cardio   { background:rgba(46,196,160,.2);  color:var(--accent3); }
+  .badge-combo    { background:rgba(232,164,34,.2);  color:var(--accent);  }
+  .badge-longo    { background:rgba(232,91,69,.2);   color:var(--danger);  }
+  .badge-descanso { background:rgba(90,96,112,.2);   color:var(--text3);   }
+  .day-body { padding:16px 18px; flex-grow: 1; }
+  .ex-section-title { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text3); margin:14px 0 10px; display:flex; align-items:center; gap:8px; }
+  .ex-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── EXERCISE CARD ── */
+  .exercise { background:var(--surface2); border:1px solid var(--border); border-radius:8px; margin-bottom:10px; overflow:hidden; transition:border-color .2s; }
+  .exercise:hover { border-color:rgba(232,164,34,.3); }
+  .ex-video-area { position:relative; width:100%; aspect-ratio:16/9; background:#000; overflow:hidden; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .ex-video-area img { width:100%; height:100%; object-fit:cover; }
+  .ex-play-btn { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:linear-gradient(to top, rgba(0,0,0,.85) 0%, rgba(0,0,0,.4) 50%, transparent 100%); text-decoration:none; transition:all .2s; z-index:10; }
+  .ex-play-btn:hover { background:linear-gradient(to top, rgba(0,0,0,.95) 0%, rgba(0,0,0,.6) 100%); }
+  .play-icon { width:56px; height:56px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(232,164,34,.4); transition:transform .2s; }
+  .ex-play-btn:hover .play-icon { transform:scale(1.1); }
+  .play-icon::after { content:''; width:0; height:0; border-left:14px solid #0d0f14; border-top:9px solid transparent; border-bottom:9px solid transparent; margin-left:3px; }
+  .play-text { font-size:12px; color:rgba(255,255,255,.8); font-family:'JetBrains Mono',monospace; letter-spacing:.5px; }
+  .ex-info { padding:11px 14px 12px; }
+  .ex-name { font-weight:700; font-size:13.5px; margin-bottom:6px; }
+  .ex-meta { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; }
+  .meta-pill { font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:2px 8px; border-radius:20px; border:1px solid var(--border); color:var(--text2); white-space:nowrap; }
+  .meta-pill.hl { border-color:rgba(232,164,34,.45); color:var(--accent); }
+  .ex-tip { font-size:12px; color:var(--text2); font-style:italic; line-height:1.45; }
+  .ex-tip::before { content:'💡 '; }
+
+  /* ── CHECKBOX SYSTEM ── */
+  .ex-name-row { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:6px; }
+  .ex-name-row .ex-name { margin-bottom:0; flex:1; }
+  .ex-check-wrap { flex-shrink:0; cursor:pointer; display:flex; align-items:center; }
+  .ex-checkbox { display:none; }
+  .ex-check-icon { width:26px; height:26px; border-radius:6px; border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:var(--accent3); background:var(--surface); transition:all .2s; cursor:pointer; flex-shrink:0; }
+  .ex-check-wrap:hover .ex-check-icon { border-color:var(--accent3); background:rgba(46,196,160,.1); }
+  .ex-checkbox:checked + .ex-check-icon { background:var(--accent3); border-color:var(--accent3); color:#0d0f14; }
+  .ex-done { opacity:.6; }
+  .ex-done .ex-name { text-decoration:line-through; color:var(--text3); }
+  .ex-done .ex-video-area { filter:grayscale(.6); }
+
+  /* Day done button */
+  .day-done-btn {
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--text3); width:28px; height:28px; border-radius:6px;
+    font-size:13px; cursor:pointer; transition:all .2s; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .day-done-btn:hover { border-color:var(--accent3); color:var(--accent3); }
+  .day-card.day-done .day-done-btn { background:var(--accent3); border-color:var(--accent3); color:#0d0f14; }
+  .day-card.day-done .day-header { border-bottom-color:rgba(46,196,160,.3); }
+  .day-card.day-done { border-color:rgba(46,196,160,.4) !important; }
+
+  /* Progress panel (Compact Bottom) */
+  .progress-panel { position:fixed; bottom:20px; right:20px; z-index:200; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 18px; min-width:240px; box-shadow:0 8px 32px rgba(0,0,0,.4); }
+  .progress-panel-title { font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--text3); margin-bottom:10px; }
+  .prog-week-row { display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:12px; }
+  .prog-week-label { font-family:'JetBrains Mono',monospace; color:var(--text2); min-width:28px; }
+  .prog-week-bar { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+  .prog-week-fill { height:100%; background:var(--accent3); border-radius:3px; transition:width .3s; }
+  .prog-week-pct { font-family:'JetBrains Mono',monospace; color:var(--text3); font-size:10px; min-width:32px; text-align:right; }
+  .progress-panel-actions { display:flex; gap:8px; margin-top:12px; }
+  .prog-btn { flex:1; padding:6px 0; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.5px; cursor:pointer; border:1px solid var(--border); background:var(--surface2); color:var(--text2); transition:all .2s; text-align:center; }
+  .prog-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .prog-btn.reset { color:var(--danger); }
+  .prog-btn.reset:hover { border-color:var(--danger); background:rgba(232,91,69,.1); }
+
+  /* CARDIO */
+  .cardio-block { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:10px; }
+  .cardio-title { font-weight:700; font-size:14px; margin-bottom:10px; }
+  .cardio-rows { display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .cardio-item { font-size: 12px; }
+  .cardio-item strong { color: var(--accent); display: block; font-size: 10px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; opacity: 0.7; }
+  .cardio-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .cardio-table th { text-align: left; padding: 4px 8px; border-bottom: 1px solid var(--border); color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+  .cardio-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .zona { font-weight: 700; }
+  .z1 { color: #8b91a8; } .z2 { color: var(--accent3); } .z3 { color: var(--accent); } .z4 { color: var(--danger); }
+  .long-highlight { background: rgba(232,91,69,0.1); border: 1px solid rgba(232,91,69,0.3); border-radius: 8px; padding: 15px; margin-bottom: 10px; }
+  .lh-title { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--danger); margin-bottom: 10px; }
+  .long-highlight ul { padding-left: 20px; font-size: 13px; }
+  .long-highlight li { margin-bottom: 5px; }
+
+  /* ── MODAL ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+  .modal-content { width: 95%; max-width: 960px; aspect-ratio: 16/9; background: #000; border-radius: 12px; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid var(--border); }
+  .modal-close { position: absolute; top: 15px; right: 15px; width: 40px; height: 40px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; font-size: 20px; transition: all 0.2s; }
+  .modal-close:hover { background: var(--danger); border-color: var(--danger); }
+  .modal-iframe { width: 100%; height: 100%; border: none; }
+  .modal-loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--text2); font-family: 'JetBrains Mono', monospace; font-size: 14px; }
+
+  /* TIPS */
+  .tips-section { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+  .tip-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+  .tip-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; color: var(--accent); margin-bottom: 15px; letter-spacing: 1px; }
+  .tip-card ul { padding-left: 20px; font-size: 13px; color: var(--text2); }
+  .tip-card li { margin-bottom: 8px; }
+
+  /* MOBILE OPTIMIZATION */
+  @media(max-width:768px){
+    .hero { padding: 50px 20px 40px; }
+    .hero h1 { font-size: 48px; }
+    .container { padding: 0 20px; }
+    .week-nav { padding: 0 10px; }
+    .header-progress { padding: 0 20px 10px; }
+    .days-grid { grid-template-columns: 1fr; }
+    .week-header { flex-direction: column; gap: 10px; }
+    .week-num { font-size: 48px; min-width: auto; }
+    .progress-panel { bottom: 0; right: 0; left: 0; border-radius: 12px 12px 0 0; min-width: unset; padding: 10px 20px; }
+    .sticky-header { top: -1px; }
+    .week-block { padding: 40px 0 20px; scroll-margin-top: 160px; }
+  }
+
+  /* UTILS */
+  .circuit-links { background:rgba(232,164,34,.08); border:1px solid rgba(232,164,34,.2); border-radius:6px; padding:8px 12px; margin-top:8px; }
+  .circuit-links-title { font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+  .circuit-links-list { display:flex; flex-wrap:wrap; gap:6px; }
+  .circuit-link { display:inline-block; background:rgba(232,164,34,.15); border:1px solid rgba(232,164,34,.3); color:var(--accent); padding:4px 10px; border-radius:4px; font-size:11px; cursor:pointer; transition:all .2s; text-decoration:none; }
+  .circuit-link:hover { background:rgba(232,164,34,.25); transform:translateY(-2px); }
+</style>
+</head>
+<body>
+
+<!-- STICKY HEADER -->
+<div class="sticky-header">
+  <nav class="week-nav">
+    <a href="#s1">S1 <span class="phase">BASE</span></a>
+    <a href="#s2">S2 <span class="phase">BASE</span></a>
+    <a href="#s3">S3 <span class="phase">BUILD</span></a>
+    <a href="#s4">S4 <span class="phase">BUILD</span></a>
+    <a href="#s5">S5 <span class="phase">DELOAD</span></a>
+    <a href="#s6">S6 <span class="phase">PEAK</span></a>
+    <a href="#s7">S7 <span class="phase">PEAK</span></a>
+    <a href="#s8">S8 <span class="phase">PEAK</span></a>
+    <a href="#s9">S9 <span class="phase">TAPER</span></a>
+    <a href="#tips">DICAS</a>
+  </nav>
+  <div class="header-progress">
+    <div class="header-prog-container">
+      <div class="header-prog-title">🚀 Progresso Geral</div>
+      <div class="header-prog-bar-wrap">
+        <div class="header-prog-fill" id="headerProgFill"></div>
+      </div>
+      <div class="header-prog-stats" id="headerProgStats">0%</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="videoModal">
+  <div class="modal-content">
+    <div class="modal-close" onclick="closeModal()">&times;</div>
+    <div class="modal-loading">Carregando vídeo...</div>
+    <iframe class="modal-iframe" id="videoFrame" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="container">
+    <div class="hero-badge">⛰️ Programa Preparatório · 8 Semanas</div>
+    <h1>HUAYHUASH<br><span>CIRCUIT</span></h1>
+    <p class="hero-sub">Programa preparatório para 8 dias consecutivos de trekking em alta altitude (4.000–5.200m). Academia: Seg · Qua · Sex &nbsp;|&nbsp; Corrida: Ter · Qui &nbsp;|&nbsp; Longo: Sáb · Dom &nbsp;|&nbsp; Viagem: 12/06/2026</p>
+    <div class="hero-stats">
+      <div class="stat-chip"><span>📅</span><strong>8 semanas</strong></div>
+      <div class="stat-chip"><span>🏃</span>Corrida: <strong>Ter · Qui</strong></div>
+      <div class="stat-chip"><span>🏋️</span>Força: <strong>Seg · Qua · Sex</strong></div>
+      <div class="stat-chip"><span>⛰️</span><strong>4.000–5.200m</strong> altitude</div>
+      <div class="stat-chip"><span>🎒</span>Mochila <strong>~4 kg</strong></div>
+      <div class="stat-chip"><span>✈️</span>Viagem: <strong>12/06/2026</strong></div>
+    </div>
+    <div class="video-note">
+      <span style="font-size:20px;flex-shrink:0">▶</span>
+      <div>Cada exercício possui um <strong>vídeo curto do Vimeo</strong>. Clique para assistir sem sair desta página.</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- HELPERS & LOGIC -->
+<script>
+const STORE_KEY = 'huayhuash_progress_v1';
+const vimeoMapping = {
+  "Leg Swing + Hip Circle": "249567002",
+  "Agachamento Goblet": "1143172236",
+  "Step-Up com Joelho Alto (banco 40cm)": "1166140318",
+  "Romanian Deadlift com Halteres": "1137109977",
+  "TKE — Terminal Knee Extension (Elástico)": "806914248",
+  "Dead Bug": "153722915",
+  "Remada com Halteres": "528847604",
+  "Hip Thrust no Banco": "805089322",
+  "Clamshell com Elástico": "600362387",
+  "Bird Dog": "154208035",
+  "Pulldown ou Barra Assistida": "800517283",
+  "Lateral Band Walk (Elástico)": "249430183",
+  "Pallof Press (Anti-rotação Core)": "457303691",
+  "Good Morning (barra ou livre)": "839063828",
+  "Mobilidade de Tornozelo (Wall Ankle)": "124408102",
+  "Split Squat Búlgaro": "307539679",
+  "Step-Down Excêntrico (banco 30cm)": "749802964",
+  "Panturrilha Unilateral no Degrau": "747333403",
+  "Hip Thrust com Banda + Peso": "193119302",
+  "Deadlift Convencional (carga moderada)": "193426939",
+  "Renegade Row (Prancha + Remada)": "466975407",
+  "Ab Wheel Rollout": "397465897",
+  "Lunge Caminhando com Halteres": "616865143",
+  "Nordic Curl": "647975010",
+  "Wall Sit — Cadeira na Parede": "372843156",
+  "Farmer's Carry": "124064965",
+  "Box Jump": "345204933",
+  "World's Greatest Stretch": "699261778",
+  "Pigeon Pose": "124235577"
+};
+
+const circuitMapping = {
+  "Hip Thrust + Clamshell + Prancha Lateral (circuito)": [
+    { name: "Hip Thrust no Banco", id: "805089322" },
+    { name: "Clamshell com Elástico", id: "600362387" }
+  ],
+  "Agachamento Goblet + Hip Thrust": [
+    { name: "Agachamento Goblet", id: "1143172236" },
+    { name: "Hip Thrust no Banco", id: "805089322" }
+  ],
+  "Clamshell + TKE (circuito de joelho)": [
+    { name: "Clamshell com Elástico", id: "600362387" },
+    { name: "TKE — Terminal Knee Extension (Elástico)", id: "806914248" }
+  ],
+  "Renegade Row + TKE + Clamshell (circuito)": [
+    { name: "Renegade Row (Prancha + Remada)", id: "466975407" },
+    { name: "TKE — Terminal Knee Extension (Elástico)", id: "806914248" },
+    { name: "Clamshell com Elástico", id: "600362387" }
+  ],
+  "Hip Thrust + Clamshell + TKE (circuito)": [
+    { name: "Hip Thrust no Banco", id: "805089322" },
+    { name: "Clamshell com Elástico", id: "600362387" },
+    { name: "TKE — Terminal Knee Extension (Elástico)", id: "806914248" }
+  ]
+};
+
+function openModal(vimeoId, exerciseName) {
+  const modal = document.getElementById('videoModal');
+  const frame = document.getElementById('videoFrame');
+  if (vimeoId) {
+    frame.src = `https://player.vimeo.com/video/${vimeoId}?h=&autoplay=1&title=0&byline=0&portrait=0`;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeModal() {
+  const modal = document.getElementById('videoModal');
+  const frame = document.getElementById('videoFrame');
+  frame.src = '';
+  modal.style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+window.onclick = function(event) {
+  const modal = document.getElementById('videoModal');
+  if (event.target == modal) closeModal();
+}
+
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+  catch(e) { return {}; }
+}
+
+function saveProgress(data) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+function toggleCheck(id, checked) {
+  const data = loadProgress();
+  data[id] = checked;
+  saveProgress(data);
+  const card = document.getElementById('card_' + id);
+  if (card) {
+    if (checked) card.classList.add('ex-done');
+    else card.classList.remove('ex-done');
+  }
+  const icon = document.querySelector(`input[data-id="${id}"]`).nextElementSibling;
+  if (icon) icon.textContent = checked ? '✓' : '';
+  updateProgressPanel();
+}
+
+function toggleDayDone(dayId) {
+  const data = loadProgress();
+  data[dayId] = !data[dayId];
+  saveProgress(data);
+  const el = document.getElementById(dayId);
+  if (el) {
+    if (data[dayId]) el.classList.add('day-done');
+    else el.classList.remove('day-done');
+  }
+  updateProgressPanel();
+}
+
+function secTitle(t) { return `<div class="ex-section-title">${t}</div>`; }
+
+function cardioBlock(icon, title, items, tableRows, tip) {
+  let html = `<div class="cardio-block"><div class="cardio-title">${icon} ${title}</div>`;
+  if (items && items.length > 0) {
+    html += `<div class="cardio-rows">`;
+    items.forEach(it => { html += `<div class="cardio-item"><strong>${it[0]}</strong>${it[1]}</div>`; });
+    html += `</div>`;
+  }
+  if (tableRows && tableRows.length > 0) {
+    html += `<table class="cardio-table"><thead><tr><th>Fase</th><th>O que</th><th>Tempo</th><th>Int.</th></tr></thead><tbody>`;
+    tableRows.forEach(r => { html += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`; });
+    html += `</tbody></table>`;
+  }
+  if (tip) html += `<p class="ex-tip" style="margin-top:10px">${tip}</p>`;
+  html += `</div>`;
+  return html;
+}
+
+function dayCard(day, name, type, extraClass, content) {
+  const id = 'day_' + (name + day).replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  const data = loadProgress();
+  const isDone = data[id] || false;
+  const badgeClass = 'badge-' + type.toLowerCase().replace('corrida','cardio').replace('trilha','longo').replace('descanso','descanso');
+  
+  return `
+  <div class="day-card ${extraClass} ${isDone ? 'day-done' : ''}" id="${id}">
+    <div class="day-header">
+      <div class="day-label">
+        <span class="weekday">${day}</span>
+        <span class="day-name">${name}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="day-type-badge ${badgeClass}">${type}</span>
+        <button class="day-done-btn" onclick="toggleDayDone('${id}')">✓</button>
+      </div>
+    </div>
+    <div class="day-body">${content}</div>
+  </div>`;
+}
+
+function ex(name, sets, rest, tip, vimeoId, circuitKey) {
+  const id = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  const data = loadProgress();
+  const checked = data[id] || false;
+  const imageUrl = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 225'%3E%3Crect width='400' height='225' fill='%231c2030'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%235a6070' font-family='monospace' font-size='14'%3EHuayhuash Prep%3C/text%3E%3C/svg%3E";
+
+  let circuitHtml = '';
+  if (circuitKey && circuitMapping[circuitKey]) {
+    circuitHtml = `<div class="circuit-links"><div class="circuit-links-title">🔗 Circuito:</div><div class="circuit-links-list">`;
+    circuitMapping[circuitKey].forEach(item => {
+      circuitHtml += `<a class="circuit-link" onclick="event.stopPropagation(); openModal('${item.id}', '${item.name}')">${item.name}</a>`;
+    });
+    circuitHtml += `</div></div>`;
+  }
+
+  return `
+  <div class="exercise ${checked ? 'ex-done' : ''}" id="card_${id}">
+    <div class="ex-video-area" ${vimeoId ? `onclick="openModal('${vimeoId}', '${name}')"` : ''}>
+      <img src="${imageUrl}" alt="${name}">
+      <a class="ex-play-btn" href="javascript:void(0)" ${vimeoId ? `onclick="openModal('${vimeoId}', '${name}'); return false;"` : ''}>
+        <div class="play-icon"></div>
+        <div class="play-text">Assistir Execução</div>
+      </a>
+    </div>
+    <div class="ex-info">
+      <div class="ex-name-row">
+        <span class="ex-name">${name}</span>
+        <label class="ex-check-wrap" onclick="event.stopPropagation()">
+          <input type="checkbox" class="ex-checkbox" data-id="${id}" ${checked ? 'checked' : ''} onchange="toggleCheck('${id}', this.checked)">
+          <span class="ex-check-icon">${checked ? '✓' : ''}</span>
+        </label>
+      </div>
+      <div class="ex-meta"><span class="meta-pill hl">${sets}</span><span class="meta-pill">${rest}</span></div>
+      <div class="ex-tip">${tip}</div>
+      ${circuitHtml}
+    </div>
+  </div>`;
+}
+
+function updateProgressPanel() {
+  const data = loadProgress();
+  const panel = document.getElementById('progressPanel');
+  const headerFill = document.getElementById('headerProgFill');
+  const headerStats = document.getElementById('headerProgStats');
+  
+  let totalDone = 0, totalAll = 0;
+  let panelHtml = '<div class="progress-panel-title">📊 Progresso Semanal</div>';
+  
+  for (let s = 1; s <= 9; s++) {
+    const grid = document.getElementById('s' + s + '-grid');
+    if (!grid) continue;
+    const all = grid.querySelectorAll('.ex-checkbox').length + grid.querySelectorAll('.day-card').length;
+    let done = 0;
+    grid.querySelectorAll('.ex-checkbox').forEach(cb => { if(cb.checked) done++; });
+    grid.querySelectorAll('.day-card[id]').forEach(el => { if (data[el.id]) done++; });
+    
+    const pct = all > 0 ? Math.round(done/all*100) : 0;
+    totalDone += done; totalAll += all;
+    const color = pct === 100 ? 'var(--accent3)' : pct > 50 ? 'var(--accent)' : 'var(--accent2)';
+    
+    panelHtml += `<div class="prog-week-row">
+      <span class="prog-week-label">S${s}</span>
+      <div class="prog-week-bar"><div class="prog-week-fill" style="width:${pct}%;background:${color}"></div></div>
+      <span class="prog-week-pct">${pct}%</span>
+    </div>`;
+  }
+  
+  const totalPct = totalAll > 0 ? Math.round(totalDone/totalAll*100) : 0;
+  if (headerFill) headerFill.style.width = totalPct + '%';
+  if (headerStats) headerStats.textContent = `${totalPct}% (${totalDone}/${totalAll})`;
+  
+  panelHtml += `<div class="progress-panel-actions">
+    <button class="prog-btn" onclick="exportProgress()">⬇ Export</button>
+    <label class="prog-btn" style="cursor:pointer">⬆ Import<input type="file" accept=".json" style="display:none" onchange="importProgress(this)"></label>
+    <button class="prog-btn reset" onclick="if(confirm('Zerar todo o progresso?')){localStorage.removeItem(STORE_KEY);location.reload();}">✕</button>
+  </div>`;
+  
+  if (panel) panel.innerHTML = panelHtml;
+}
+
+function exportProgress() {
+  const data = loadProgress();
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'huayhuash_progress_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+function importProgress(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      saveProgress(data);
+      location.reload();
+    } catch(err) { alert('Arquivo inválido.'); }
+  };
+  reader.readAsText(file);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  // POPULATE ALL GRIDS
+  document.getElementById('s1-grid').innerHTML = [
+    dayCard('Seg','Academia — Inferiores A','FORÇA','',
+      secTitle('Aquecimento') + ex('Leg Swing + Hip Circle','2×10 cada','Sem descanso','Mobilize quadril.',vimeoMapping['Leg Swing + Hip Circle']) +
+      secTitle('Bloco Principal') + ex('Agachamento Goblet','3×15','60s','Joelhos alinhados.',vimeoMapping['Agachamento Goblet']) +
+      ex('Step-Up com Joelho Alto (banco 40cm)','3×12 cada','60s','Ativa glúteo.',vimeoMapping['Step-Up com Joelho Alto (banco 40cm)']) +
+      ex('Romanian Deadlift com Halteres','3×12','75s','Coluna neutra.',vimeoMapping['Romanian Deadlift com Halteres']) +
+      ex('Dead Bug','3×8 cada','45s','Core.',vimeoMapping['Dead Bug'])),
+    dayCard('Ter','Corrida — Zona 2 (40 min)','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Corrida Contínua Zona 2',[['Duração','40 min'],['Intensidade','Z2 · 111–130 bpm'],['Terreno','Plana']],[],'Não acelere.')),
+    dayCard('Qua','Academia — Superiores + Glúteo','FORÇA','',
+      ex('Remada com Halteres','3×15','60s','Postura de mochila.',vimeoMapping['Remada com Halteres']) +
+      ex('Hip Thrust no Banco','4×15','60s','Glúteo.',vimeoMapping['Hip Thrust no Banco']) +
+      ex('Clamshell com Elástico','3×20 cada','45s','Estabilidade.',vimeoMapping['Clamshell com Elástico']) +
+      ex('Bird Dog','3×10 cada','45s','Lento.',vimeoMapping['Bird Dog'])),
+    dayCard('Qui','Corrida — Hill Repeats (6 tiros)','CORRIDA','cardio-outdoor',
+      cardioBlock('⚡','Tiros em Subida',[],[['Aquecimento','Trote','10 min','Z2'],['Tiro 1–6','Forte','60s','Z4'],['Recuperação','Caminhada','90s','Z1'],['Resfriamento','Trote','10 min','Z2']],'6–10% inclinação.')),
+    dayCard('Sex','Academia — Inferiores B','FORÇA','',
+      ex('Single-Leg RDL Unilateral','3×10 cada','60s','Equilíbrio.',vimeoMapping['Romanian Deadlift com Halteres']) +
+      ex('Wall Sit — Cadeira na Parede','3×45s','60s','90° no joelho.',vimeoMapping['Wall Sit — Cadeira na Parede']) +
+      ex('Farmer\'s Carry','3×30m','60s','Postura.',vimeoMapping["Farmer's Carry"]) +
+      ex('Good Morning (barra ou livre)','3×10','60s','Isquiotibiais.',vimeoMapping['Good Morning (barra ou livre)'])),
+    dayCard('Sáb','Corrida Longa — Zona 2','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S1 · Sábado</div><ul><li>10–12 km</li><li>Zona 2</li><li>60–80 min</li></ul></div>`),
+    dayCard('Dom','Trilha com Mochila','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S1 · Domingo</div><ul><li>10–12 km</li><li>Mochila 4 kg</li><li>1h30–2h</li></ul></div>`),
+  ].join('');
+
+  document.getElementById('s2-grid').innerHTML = [
+    dayCard('Seg','Academia — Inferiores A (Expandido)','FORÇA','',
+      secTitle('Aquecimento') + ex('Leg Swing + Hip Circle','2×12 cada','Sem descanso','Mobilize quadril.',vimeoMapping['Leg Swing + Hip Circle']) +
+      secTitle('Bloco Resistência') + ex('Agachamento Goblet','4×15','60s','Controlada.',vimeoMapping['Agachamento Goblet']) +
+      ex('Step-Up com Joelho Alto (banco 40cm)','3×12 cada','60s','Glúteo.',vimeoMapping['Step-Up com Joelho Alto (banco 40cm)']) +
+      ex('Romanian Deadlift com Halteres','3×12','75s','Posterior.',vimeoMapping['Romanian Deadlift com Halteres']) +
+      ex('Split Squat Búlgaro','3×10 cada','75s','Unilateral.',vimeoMapping['Split Squat Búlgaro']) +
+      secTitle('Joelho + Panturrilha') + ex('TKE — Terminal Knee Extension','3×20','45s','Joelho.',vimeoMapping['TKE — Terminal Knee Extension (Elástico)']) +
+      ex('Clamshell com Elástico','3×15 cada','45s','Glúteo médio.',vimeoMapping['Clamshell com Elástico']) +
+      ex('Panturrilha Unilateral no Degrau','3×15 cada','45s','Excêntrica.',vimeoMapping['Panturrilha Unilateral no Degrau'])),
+    dayCard('Ter','Corrida — Zona 2 (45 min)','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Corrida Zona 2',[['Duração','45 min'],['Intensidade','Z2'],['Terreno','Ladeiras']],[],'+5 min vs S1.')),
+    dayCard('Qua','Academia — Superiores + Core','FORÇA','',
+      ex('Deadlift Convencional','4×8','90s','Cadeia posterior.',vimeoMapping['Deadlift Convencional (carga moderada)']) +
+      ex('Hip Thrust no Banco','4×15','60s','Glúteo.',vimeoMapping['Hip Thrust no Banco']) +
+      ex('Pulldown ou Barra Assistida','3×12','60s','Bastões.',vimeoMapping['Pulldown ou Barra Assistida']) +
+      ex('Ab Wheel Rollout','3×8','60s','Core.',vimeoMapping['Ab Wheel Rollout']) +
+      ex('Pallof Press','3×10 cada','45s','Anti-rotação.',vimeoMapping['Pallof Press (Anti-rotação Core)'])),
+    dayCard('Qui','Corrida — Hill Repeats (8 tiros)','CORRIDA','cardio-outdoor',
+      cardioBlock('⚡','Tiros em Subida',[],[['Aquecimento','Trote','10 min','Z2'],['Tiro 1–8','Forte','60s','Z4'],['Recuperação','Caminhada','90s','Z1'],['Resfriamento','Trote','10 min','Z2']],'8 Repetições.')),
+    dayCard('Sex','Academia — Inferiores B','FORÇA','',
+      ex('Lunge Caminhando','4×20 passos','75s','Padrão montanha.',vimeoMapping['Lunge Caminhando com Halteres']) +
+      ex('Nordic Curl','3×6','90s','Isquiotibiais.',vimeoMapping['Nordic Curl']) +
+      ex('Wall Sit','3×50s','60s','Isométrico.',vimeoMapping['Wall Sit — Cadeira na Parede']) +
+      ex('Good Morning','3×12','60s','Posterior.',vimeoMapping['Good Morning (barra ou livre)']) +
+      ex('Farmer\'s Carry','3×30m','60s','Carga.',vimeoMapping["Farmer's Carry"]) +
+      ex('Mobilidade Tornozelo','2×15 cada','Sem descanso','Livre.',vimeoMapping['Mobilidade de Tornozelo (Wall Ankle)'])),
+    dayCard('Sáb','Corrida Longa','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S2 · Sábado</div><ul><li>12–14 km</li><li>Zona 2</li><li>75–95 min</li></ul></div>`),
+    dayCard('Dom','Trilha com Mochila','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S2 · Domingo</div><ul><li>13–15 km · 400–600m↑</li><li>Mochila 4 kg</li><li>2h30–3h</li></ul></div>`),
+  ].join('');
+
+  document.getElementById('s3-grid').innerHTML = [
+    dayCard('Seg','Academia — Inferiores A (Volume ↑)','FORÇA','',
+      secTitle('Resistência — Alta Repetição') + ex('Agachamento Goblet','4×20','75s','20 reps resistência.',vimeoMapping['Agachamento Goblet']) +
+      ex('Split Squat Búlgaro','4×10 cada','75s','Unilateral.',vimeoMapping['Split Squat Búlgaro']) +
+      ex('Step-Up com Joelho Alto','4×12 cada','60s','Adicione halteres.',vimeoMapping['Step-Up com Joelho Alto (banco 40cm)']) +
+      ex('Romanian Deadlift','4×12','75s','Posterior.',vimeoMapping['Romanian Deadlift com Halteres']) +
+      secTitle('Joelho + Panturrilha') + ex('TKE','3×20','45s','Obrigatório.',vimeoMapping['TKE — Terminal Knee Extension (Elástico)']) +
+      ex('Clamshell','3×20 cada','45s','Estabilidade.',vimeoMapping['Clamshell com Elástico']) +
+      ex('Panturrilha Unilateral','4×15 cada','45s','Excêntrica 4s.',vimeoMapping['Panturrilha Unilateral no Degrau']) +
+      ex('Wall Sit','3×60s','60s','Resistência.',vimeoMapping['Wall Sit — Cadeira na Parede'])),
+    dayCard('Ter','Corrida — Intervalado 4×4','CORRIDA','cardio-outdoor',
+      cardioBlock('⚡','Protocolo 4×4',[],[['Aquecimento','Trote','10 min','Z2'],['Intervalo ×4','Forte','4 min','Z4'],['Recuperação ×4','Leve','3 min','Z1'],['Resfriamento','Caminhada','10 min','Z1']],'Fator crítico altitude.')),
+    dayCard('Qua','Academia — Superiores + Core','FORÇA','',
+      ex('Deadlift Convencional','4×10','90s','Posterior.',vimeoMapping['Deadlift Convencional (carga moderada)']) +
+      ex('Hip Thrust no Banco','4×15','60s','Glúteo.',vimeoMapping['Hip Thrust no Banco']) +
+      ex('Renegade Row','3×8 cada','75s','Core.',vimeoMapping['Renegade Row (Prancha + Remada)']) +
+      ex('Lateral Band Walk','3×15 passos cada','45s','Glúteo médio.',vimeoMapping['Lateral Band Walk (Elástico)']) +
+      ex('Ab Wheel Rollout','3×10','60s','Proteção lombar.',vimeoMapping['Ab Wheel Rollout'])),
+    dayCard('Qui','Corrida — Zona 2 (50 min)','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Corrida Zona 2',[['Duração','50 min'],['Intensidade','Z2'],['Objetivo','Oxidação']],[],'Regime dominante.')),
+    dayCard('Sex','Academia — Inferiores B','FORÇA','',
+      ex('Lunge Caminhando','4×20 passos','75s','Força + Padrão.',vimeoMapping['Lunge Caminhando with Halteres']) +
+      ex('Nordic Curl','3×8','90s','Excêntrica.',vimeoMapping['Nordic Curl']) +
+      ex('Good Morning','3×12','60s','Posterior.',vimeoMapping['Good Morning (barra ou livre)']) +
+      ex('Panturrilha Unilateral','3×18 cada','45s','Amplitude.',vimeoMapping['Panturrilha Unilateral no Degrau']) +
+      ex('World\'s Greatest Stretch','3×5 cada','Sem descanso','Mobilidade.',vimeoMapping["World's Greatest Stretch"])),
+    dayCard('Sáb','Corrida — Tempo Run','LONGO','cardio-outdoor',
+      cardioBlock('🏃','Progressiva Z2→Z3',[],[['Aquecimento','Leve','10 min','Z1'],['Base','Z2','25 min','Z2'],['Progressão','Z3','15 min','Z3'],['Resfriamento','Caminhada','10 min','Z1']],'Primeira Z3.')),
+    dayCard('Dom','Trilha Longa','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S3 · Domingo</div><ul><li>14–16 km · 700–900m↑</li><li>Mochila 4 kg</li><li>3h–3h30</li></ul></div>`),
+  ].join('');
+
+  document.getElementById('s4-grid').innerHTML = [
+    dayCard('Seg','Academia — Inferiores A','FORÇA','',
+      secTitle('Força — Progressão Carga') + ex('Agachamento Goblet','5×15','75s','Aumente carga.',vimeoMapping['Agachamento Goblet']) +
+      ex('Split Squat Búlgaro','4×12 cada','75s','Halteres.',vimeoMapping['Split Squat Búlgaro']) +
+      ex('Step-Down Excêntrico','4×12 cada','60s','4s descida.',vimeoMapping['Step-Down Excêntrico (banco 30cm)']) +
+      ex('Romanian Deadlift','4×15','75s','Resistência.',vimeoMapping['Romanian Deadlift com Halteres']) +
+      secTitle('Joelho + Panturrilha') + ex('TKE','3×20','45s','Joelho.',vimeoMapping['TKE — Terminal Knee Extension (Elástico)']) +
+      ex('Clamshell','3×20 cada','45s','Glúteo médio.',vimeoMapping['Clamshell com Elástico']) +
+      ex('Panturrilha Unilateral','4×20 cada','45s','20 reps.',vimeoMapping['Panturrilha Unilateral no Degrau']) +
+      ex('Wall Sit','3×75s','75s','Simulação descida.',vimeoMapping['Wall Sit — Cadeira na Parede'])),
+    dayCard('Ter','Corrida — Hill Repeats (10 tiros)','CORRIDA','cardio-outdoor',
+      cardioBlock('⚡','Tiros 90s',[],[['Aquecimento','Trote','10 min','Z2'],['Tiro 1–10','Forte','90s','Z4'],['Recuperação','Caminhada','90s','Z1'],['Z2 Final','Trote','10 min','Z2']],'Maior volume alta int.')),
+    dayCard('Qua','Academia — Superiores + Core','FORÇA','',
+      ex('Deadlift Convencional','4×10','90s','Carga ↑.',vimeoMapping['Deadlift Convencional (carga moderada)']) +
+      ex('Hip Thrust com Banda','5×12','75s','Dupla ativação.',vimeoMapping['Hip Thrust com Banda + Peso']) +
+      ex('Renegade Row','3×10 cada','75s','Core.',vimeoMapping['Renegade Row (Prancha + Remada)']) +
+      ex('Ab Wheel Rollout','3×12','60s','Lombar.',vimeoMapping['Ab Wheel Rollout']) +
+      ex('Pallof Press','3×12 cada','45s','Estabilidade.',vimeoMapping['Pallof Press (Anti-rotação Core)'])),
+    dayCard('Qui','Corrida — Tempo Run','CORRIDA','cardio-outdoor',
+      cardioBlock('⚡','Tempo 2×10 min',[],[['Aquecimento','Trote','12 min','Z2'],['Tempo 1','Limiar','10 min','Z3'],['Recuperação','Leve','3 min','Z1'],['Tempo 2','Limiar','10 min','Z3'],['Resfriamento','Caminhada','10 min','Z1']],'Sustentável.')),
+    dayCard('Sex','Academia — Inferiores B','FORÇA','',
+      ex('Lunge Caminhando','4×20 passos','75s','Carga moderada.',vimeoMapping['Lunge Caminhando with Halteres']) +
+      ex('Nordic Curl','3×10','90s','Isquiotibiais.',vimeoMapping['Nordic Curl']) +
+      ex('Good Morning','4×12','60s','Posterior.',vimeoMapping['Good Morning (barra ou livre)']) +
+      ex('Farmer\'s Carry','4×30m','60s','Carga máxima.',vimeoMapping["Farmer's Carry"]) +
+      ex('Pigeon Pose','3×40s cada','Sem descanso','Quadril.',vimeoMapping['Pigeon Pose'])),
+    dayCard('Sáb','Corrida — Zona 2 (65 min)','LONGO','cardio-outdoor',
+      cardioBlock('🏃','Z2 Estendida',[['Duração','65 min'],['Mochila','3 kg opcional']],[],'Motor aeróbico.')),
+    dayCard('Dom','Trilha — Desnível + Mochila','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S4 · Domingo</div><ul><li>16–18 km · 800–1.000m↑</li><li>Mochila 4 kg</li><li>3h30–4h</li></ul></div>`),
+  ].join('');
+
+  document.getElementById('s5-grid').innerHTML = [
+    dayCard('Seg','Academia — Deload −30%','FORÇA','',
+      secTitle('Manutenção') + ex('Agachamento Goblet','3×12','60s','Mesma carga.',vimeoMapping['Agachamento Goblet']) +
+      ex('Split Squat Búlgaro','2×10 cada','75s','Qualidade.',vimeoMapping['Split Squat Búlgaro']) +
+      ex('Romanian Deadlift','3×10','75s','Controle.',vimeoMapping['Romanian Deadlift com Halteres']) +
+      ex('TKE','2×20','45s','Joelho.',vimeoMapping['TKE — Terminal Knee Extension (Elástico)']) +
+      ex('Panturrilha','2×15 cada','45s','Manutenção.',vimeoMapping['Panturrilha Unilateral no Degrau'])),
+    dayCard('Ter','Corrida — Zona 2 Leve','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Recuperação',[['Duração','35 min'],['Intensidade','Z2']],[],'Muito fácil.')),
+    dayCard('Qua','Academia — Superiores Leve','FORÇA','',
+      ex('Hip Thrust','3×12','60s','Neuromuscular.',vimeoMapping['Hip Thrust no Banco']) +
+      ex('Pulldown','2×12','60s','Bastões.',vimeoMapping['Pulldown ou Barra Assistida']) +
+      ex('Dead Bug','3×8 cada','45s','Core.',vimeoMapping['Dead Bug'])),
+    dayCard('Qui','Corrida — Zona 2 Deload','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Z2 Deload',[['Duração','40 min'],['Intensidade','Z2']],[],'Sem fadiga.')),
+    dayCard('Sex','Academia — Mobilidade','FORÇA','',
+      ex('Pigeon Pose','3×45s cada','Sem descanso','Abertura.',vimeoMapping['Pigeon Pose']) +
+      ex('World\'s Greatest Stretch','3×6 cada','Sem descanso','Total.',vimeoMapping["World's Greatest Stretch"]) +
+      ex('Mobilidade Tornozelo','3×15 cada','Sem descanso','Livre.',vimeoMapping['Mobilidade de Tornozelo (Wall Ankle)'])),
+    dayCard('Sáb','Corrida Curta','LONGO','cardio-outdoor',
+      cardioBlock('🏃','Z1–Z2',[['Duração','45 min'],['Tom','Passeio']],[],'Supercompensação.')),
+    dayCard('Dom','Trilha Curta Deload','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S5 · Domingo</div><ul><li>10–12 km · 300–400m↑</li><li>Mochila 4 kg</li><li>2h–2h15</li></ul></div>`),
+  ].join('');
+
+  document.getElementById('s6-grid').innerHTML = [
+    dayCard('Seg','Academia — Inferiores A (Pico)','FORÇA','',
+      secTitle('Resistência Máxima') + ex('Agachamento Goblet','5×20','90s','Burn real.',vimeoMapping['Agachamento Goblet']) +
+      ex('Split Squat Búlgaro','4×12 cada','75s','Carga máxima.',vimeoMapping['Split Squat Búlgaro']) +
+      ex('Step-Up Joelho Alto','4×12 cada','60s','Banco 50cm.',vimeoMapping['Step-Up com Joelho Alto (banco 40cm)']) +
+      ex('Nordic Curl','3×10','90s','Isquiotibiais.',vimeoMapping['Nordic Curl']) +
+      ex('Wall Sit','4×90s','90s','90s isométrico.',vimeoMapping['Wall Sit — Cadeira na Parede'])),
+    dayCard('Ter','Corrida — Intervalado 4×4','CORRIDA','cardio-outdoor',
+      cardioBlock('⚡','VO2max Peak',[],[['Aquecimento','Trote','10 min','Z2'],['Intervalo ×4','Máximo','4 min','Z4'],['Recuperação ×4','Leve','3 min','Z1'],['Resfriamento','Caminhada','10 min','Z1']],'Dê tudo.')),
+    dayCard('Qua','Academia — Posterior Pico','FORÇA','',
+      ex('Deadlift Convencional','5×8','90s','Carga máxima.',vimeoMapping['Deadlift Convencional (carga moderada)']) +
+      ex('Hip Thrust com Banda','5×15','75s','Glúteo.',vimeoMapping['Hip Thrust com Banda + Peso']) +
+      ex('Renegade Row','4×8 cada','75s','Core.',vimeoMapping['Renegade Row (Prancha + Remada)']) +
+      ex('Ab Wheel Rollout','3×12','60s','Lombar.',vimeoMapping['Ab Wheel Rollout'])),
+    dayCard('Qui','Corrida — Zona 2 (70 min)','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Z2 Estendida',[['Duração','70 min'],['Terreno','Subidas']],[],'Motor aeróbico.')),
+    dayCard('Sex','Academia — Inferiores B + Mochila','FORÇA','',
+      ex('Lunge Caminhando','4×20 passos','75s','Carga máxima.',vimeoMapping['Lunge Caminhando with Halteres']) +
+      ex('Good Morning','4×12','60s','Carga crescente.',vimeoMapping['Good Morning (barra ou livre)']) +
+      ex('Farmer\'s Carry','4×35m','60s','Carga máxima.',vimeoMapping["Farmer's Carry"]) +
+      ex('World\'s Greatest Stretch','3×6 cada','Sem descanso','Mobilidade.',vimeoMapping["World's Greatest Stretch"])),
+    dayCard('Sáb','Trilha Longa — DIA 1','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S6 · Sábado — DIA 1</div><ul><li>18–22 km · 1.000–1.400m↑</li><li>Mochila 5 kg</li><li>4h–5h</li></ul></div>`),
+    dayCard('Dom','Trilha Longa — DIA 2','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S6 · Domingo — DIA 2</div><ul><li>12–14 km · 400–600m↑</li><li>Mochila 4 kg</li><li>2h30–3h</li><li>Fadiga acumulada.</li></ul></div>`),
+  ].join('');
+
+  document.getElementById('s7-grid').innerHTML = [
+    dayCard('Seg','Academia — Inferiores A + Mochila','FORÇA','',
+      secTitle('Especificidade Máxima') + ex('Agachamento Goblet','5×20','90s','Mochila 4 kg.',vimeoMapping['Agachamento Goblet']) +
+      ex('Split Squat Búlgaro','4×12 cada','75s','Carga máxima.',vimeoMapping['Split Squat Búlgaro']) +
+      ex('Step-Down Excêntrico','4×12 cada','60s','Descida 4s.',vimeoMapping['Step-Down Excêntrico (banco 30cm)']) +
+      ex('Nordic Curl','3×10','90s','Isquiotibiais.',vimeoMapping['Nordic Curl']) +
+      ex('Wall Sit','4×90s','90s','Últimos 90s.',vimeoMapping['Wall Sit — Cadeira na Parede'])),
+    dayCard('Ter','Corrida — Tiros Subida','CORRIDA','cardio-outdoor',
+      cardioBlock('⚡','Tiros 2 min Subida',[],[['Aquecimento','Trote','10 min','Z2'],['Tiro ×6','Intensa','2 min','Z4'],['Recuperação','Descida','2 min','Z1'],['Resfriamento','Caminhada','10 min','Z1']],'Última alta int.')),
+    dayCard('Qua','Academia — Superiores Pico','FORÇA','',
+      ex('Deadlift Convencional','5×8','90s','Carga máxima.',vimeoMapping['Deadlift Convencional (carga moderada)']) +
+      ex('Hip Thrust com Banda','5×15','75s','Glúteo.',vimeoMapping['Hip Thrust com Banda + Peso']) +
+      ex('Renegade Row','4×10 cada','75s','Core.',vimeoMapping['Renegade Row (Prancha + Remada)']) +
+      ex('Ab Wheel Rollout','3×12','60s','Lombar.',vimeoMapping['Ab Wheel Rollout'])),
+    dayCard('Qui','Corrida — Zona 2 + Mochila','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Z2 com Mochila 4 kg',[['Duração','70 min'],['Mochila','4 kg']],[],'Especificidade.')),
+    dayCard('Sex','Academia — Inferiores B','FORÇA','',
+      ex('Lunge Caminhando','4×20 passos','75s','Última sessão.',vimeoMapping['Lunge Caminhando with Halteres']) +
+      ex('Good Morning','4×12','60s','Carga máxima.',vimeoMapping['Good Morning (barra ou livre)']) +
+      ex('Farmer\'s Carry','4×35m','60s','Máxima.',vimeoMapping["Farmer's Carry"]) +
+      ex('Pigeon Pose','3×45s cada','Sem descanso','Quadril.',vimeoMapping['Pigeon Pose'])),
+    dayCard('Sáb','Corrida Longa Z2','LONGO','cardio-outdoor',
+      cardioBlock('🏃','Z2 + Mochila',[['Duração','80 min'],['Mochila','4 kg']],[],'Reserve energia.')),
+    dayCard('Dom','TRILHA DEFINITIVA','LONGO','cardio-outdoor long-card',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S7 · ENSAIO GERAL</div><ul><li>20–24 km · 1.200–1.500m↑</li><li>Mochila 5 kg</li><li>5h–6h</li><li>Saída 5h da manhã.</li></ul></div>`),
+  ].join('');
+
+  document.getElementById('s8-grid').innerHTML = [
+    dayCard('Seg','Academia — Manutenção','FORÇA','',
+      ex('Agachamento Goblet','4×15','75s','Manutenção.',vimeoMapping['Agachamento Goblet']) +
+      ex('Split Squat Búlgaro','3×10 cada','75s','Padrão motor.',vimeoMapping['Split Squat Búlgaro']) +
+      ex('Romanian Deadlift','3×12','75s','Carga S7.',vimeoMapping['Romanian Deadlift com Halteres']) +
+      ex('TKE','2×20','45s','Joelho.',vimeoMapping['TKE — Terminal Knee Extension (Elástico)']) +
+      ex('Panturrilha','3×15 cada','45s','Manutenção.',vimeoMapping['Panturrilha Unilateral no Degrau'])),
+    dayCard('Ter','Corrida — Zona 2 (50 min)','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Z2 Conservação',[['Duração','50 min'],['Tom','Confortável']],[],'Sem fadiga.')),
+    dayCard('Qua','Academia — Superiores Manutenção','FORÇA','',
+      ex('Hip Thrust','3×12','60s','Glúteo.',vimeoMapping['Hip Thrust no Banco']) +
+      ex('Pulldown','3×10','60s','Bastões.',vimeoMapping['Pulldown ou Barra Assistida']) +
+      ex('Dead Bug','3×8 cada','45s','Core.',vimeoMapping['Dead Bug']) +
+      ex('World\'s Greatest Stretch','3×6 cada','Sem descanso','Mobilidade.',vimeoMapping["World's Greatest Stretch"])),
+    dayCard('Qui','Corrida — Zona 2 (45 min)','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Z2 Ativa',[['Duração','45 min'],['Tom','Recuperação']],[],'Padrão motor.')),
+    dayCard('Sex','Academia — Mobilidade','FORÇA','',
+      ex('TKE','2×20','45s','Joelho.',vimeoMapping['TKE — Terminal Knee Extension (Elástico)']) +
+      ex('Pigeon Pose','3×45s cada','Sem descanso','Quadril.',vimeoMapping['Pigeon Pose']) +
+      ex('Mobilidade Tornozelo','2×15 cada','Sem descanso','Livre.',vimeoMapping['Mobilidade de Tornozelo (Wall Ankle)'])),
+    dayCard('Sáb','Trilha Moderada','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S8 · Sábado</div><ul><li>14–16 km · 600–800m↑</li><li>Mochila 4 kg</li><li>2h30–3h</li></ul></div>`),
+    dayCard('Dom','Trilha Gear Check','LONGO','cardio-outdoor',
+      `<div class="long-highlight"><div class="lh-title">🏔️ S8 · Domingo</div><ul><li>12–14 km · 400–600m↑</li><li>Mochila 4 kg completa</li><li>2h–2h30</li><li>Teste final gear.</li></ul></div>`),
+  ].join('');
+
+  document.getElementById('s9-grid').innerHTML = [
+    dayCard('Seg','Academia — Volume Mínimo','FORÇA','',
+      ex('Agachamento Goblet','2×12','60s','Manutenção.',vimeoMapping['Agachamento Goblet']) +
+      ex('TKE','2×20','45s','Joelho.',vimeoMapping['TKE — Terminal Knee Extension (Elástico)']) +
+      ex('Panturrilha','2×15 cada','45s','Manutenção.',vimeoMapping['Panturrilha Unilateral no Degrau'])),
+    dayCard('Ter','Corrida Leve (30 min)','CORRIDA','cardio-outdoor',
+      cardioBlock('🏃','Taper',[['Duração','30 min'],['Tom','Muito fácil']],[],'O trabalho foi feito.')),
+    dayCard('Qua','Academia — Mobilidade Final','FORÇA','',
+      ex('World\'s Greatest Stretch','3×6 cada','Sem descanso','Última.',vimeoMapping["World's Greatest Stretch"]) +
+      ex('Pigeon Pose','3×45s cada','Sem descanso','Quadril.',vimeoMapping['Pigeon Pose']) +
+      ex('TKE','2×15','45s','Véspera.',vimeoMapping['TKE — Terminal Knee Extension (Elástico)'])),
+    dayCard('Qui','Caminhada Final Gear','CORRIDA','cardio-outdoor',
+      cardioBlock('🎒','Gear Check Final',[['Duração','45–60 min'],['Mochila','4 kg']],[],'Zero surpresas.')),
+    dayCard('Sex','VIAGEM — 12/06 ✈️','DESCANSO','rest-card',
+      `<div class="day-body">✈️ <strong>Huayhuash Circuit</strong><br>8 semanas concluídas. Chegue fresco.</div>`),
+  ].join('');
+
+  // TIPS SECTION
+  document.getElementById('tips-grid').innerHTML = `
+    <div class="tip-card"><h3>⛰️ Altitude</h3><ul><li>Huaraz (3.090m) 2–3 dias antes.</li><li>Suba lento, acampe baixo.</li><li>Hidratação: 3–4L/dia.</li></ul></div>
+    <div class="tip-card"><h3>🫁 Respiração</h3><ul><li>Lábios franzidos em subidas.</li><li>Cadência: 2 passos/inspira.</li><li>Evite hiperventilação.</li></ul></div>
+    <div class="tip-card"><h3>⚡ Cãibras e Joelho</h3><ul><li>Bastões reduzem 25% da carga.</li><li>Magnésio 2 semanas antes.</li><li>Nunca trave o joelho.</li></ul></div>
+    <div class="tip-card"><h3>🍽️ Nutrição</h3><ul><li>Coma a cada 45–60 min.</li><li>Carboidratos simples.</li><li>Sódio essencial.</li></ul></div>
+    <div class="tip-card"><h3>🌙 Recuperação</h3><ul><li>Eleve os pés ao dormir.</li><li>Meias de compressão.</li><li>Massagem 5 min.</li></ul></div>
+    <div class="tip-card"><h3>🧠 Estratégia</h3><ul><li>Divida o dia em blocos de 1h.</li><li>O mais lento vence.</li><li>Confie nos guias.</li></ul></div>
+  `;
+
+  updateProgressPanel();
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+
+  // Nav Active Link on Scroll
+  window.addEventListener('scroll', () => {
+    let current = "";
+    document.querySelectorAll('section').forEach((section) => {
+      const sectionTop = section.offsetTop;
+      if (pageYOffset >= sectionTop - 200) { current = section.getAttribute("id"); }
+    });
+    document.querySelectorAll('.week-nav a').forEach((a) => {
+      a.classList.remove("active");
+      if (a.getAttribute("href") === "#" + current) { a.classList.add("active"); }
+    });
+  });
+});
+</script>
+
+<!-- PROGRESS PANEL (BOTTOM) -->
+<div class="progress-panel" id="progressPanel">
+  <div class="progress-panel-title">📊 Carregando...</div>
+</div>
+
+<!-- SECTIONS -->
+<section class="week-block" id="s1">
+  <div class="week-header">
+    <div class="week-num">01</div>
+    <div class="week-info">
+      <span class="phase-tag phase-base">BASE · 13/04–19/04</span>
+      <h2>Adaptação Inicial</h2>
+      <p>Foco em técnica e consistência.</p>
+    </div>
+  </div>
+  <div class="days-grid" id="s1-grid"></div>
+</section>
+
+<section class="week-block" id="s2">
+  <div class="week-header"><div class="week-num">02</div><div class="week-info"><span class="phase-tag phase-base">BASE · 20/04–26/04</span><h2>Consolidação</h2><p>Inferiores expandidos e volume base.</p></div></div>
+  <div class="days-grid" id="s2-grid"></div>
+</section>
+
+<section class="week-block" id="s3">
+  <div class="week-header"><div class="week-num">03</div><div class="week-info"><span class="phase-tag phase-build">BUILD · 27/04–03/05</span><h2>Volume +15%</h2><p>Resistência muscular e VO2max.</p></div></div>
+  <div class="days-grid" id="s3-grid"></div>
+</section>
+
+<section class="week-block" id="s4">
+  <div class="week-header"><div class="week-num">04</div><div class="week-info"><span class="phase-tag phase-build">BUILD · 04/05–10/05</span><h2>Progressão</h2><p>Carga e subidas intensas.</p></div></div>
+  <div class="days-grid" id="s4-grid"></div>
+</section>
+
+<section class="week-block" id="s5">
+  <div class="week-header"><div class="week-num">05</div><div class="week-info"><span class="phase-tag phase-taper">DELOAD · 11/05–17/05</span><h2>Recuperação</h2><p>Supercompensação antes do pico.</p></div></div>
+  <div class="days-grid" id="s5-grid"></div>
+</section>
+
+<section class="week-block" id="s6">
+  <div class="week-header"><div class="week-num">06</div><div class="week-info"><span class="phase-tag phase-peak">PEAK · 18/05–24/05</span><h2>Pico 1</h2><p>Especificidade e fadiga acumulada.</p></div></div>
+  <div class="days-grid" id="s6-grid"></div>
+</section>
+
+<section class="week-block" id="s7">
+  <div class="week-header"><div class="week-num">07</div><div class="week-info"><span class="phase-tag phase-peak">PEAK · 25/05–31/05</span><h2>Pico 2</h2><p>Treino definitivo e ensaio geral.</p></div></div>
+  <div class="days-grid" id="s7-grid"></div>
+</section>
+
+<section class="week-block" id="s8">
+  <div class="week-header"><div class="week-num">08</div><div class="week-info"><span class="phase-tag phase-peak">PEAK · 01/06–07/06</span><h2>Pico 3</h2><p>Manutenção e teste de equipamento.</p></div></div>
+  <div class="days-grid" id="s8-grid"></div>
+</section>
+
+<section class="week-block" id="s9">
+  <div class="week-header"><div class="week-num">09</div><div class="week-info"><span class="phase-tag phase-taper">TAPER · 08/06–14/06</span><h2>Afunilamento</h2><p>Chegue fresco para a viagem.</p></div></div>
+  <div class="days-grid" id="s9-grid"></div>
+</section>
+
+<section class="week-block" id="tips">
+  <div class="week-header">
+    <div class="week-num">💡</div>
+    <div class="week-info"><h2>Dicas e Estratégias</h2><p>Altitude, Respiração e Recuperação.</p></div>
+  </div>
+  <div class="tips-section" id="tips-grid"></div>
+</section>
+
+</div> <!-- End Container -->
+
+<footer style="padding: 40px; text-align: center; color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 11px; border-top: 1px solid var(--border); margin-top: 40px;">
+  Huayhuash Circuit Prep — 2026 — ✈️ 12/06/2026
+</footer>
+
+</body>
+</html>
